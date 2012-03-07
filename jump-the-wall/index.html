@@ -277,6 +277,15 @@
         }
         isGameOver = true;
         document.getElementById("status").innerHTML = "<p style=\"font-size:20px; color:#333; font-family:Arial;\">Game Over. Press F5 to restart.</p>";
+
+	//save to local disk
+	var transaction = iDB.transaction('store', IDBTransaction.READ_WRITE);
+	var store = transaction.objectStore('store');
+	var req = store.put({key: 'foo',value: highscore});
+	req.onsuccess = function (ev) {
+	 alert(req.result);
+	};
+	
     }
 
 	var strt = 0;
@@ -458,8 +467,25 @@
 
     // WIDS Workshop: this is the window.onload function.
     // Init IndexedDB here and read the save highscore value here.
-	}
 
+	var req = mozIndexedDB.open('DBName', 1);
+	req.onupgradeneeded = function (ev) {
+	 iDB.createObjectStore(
+	   'store', { keyPath: 'key' });
+	};
+	req.onsuccess = function (ev) {
+	 iDB = ev.target.result;
+	};
+	//read value
+	var transaction = iDB.transaction('store');
+	var store = transaction.objectStore('store');
+	var req = store.get('foo');
+	req.onsuccess = function (ev) {
+	 alert(req.result);
+	};
+
+    }
+	var iDB;
     //calls init function whenever the page gets fully loaded
     window.addEventListener("load",starter,true);
 
